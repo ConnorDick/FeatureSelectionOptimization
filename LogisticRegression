@@ -1,0 +1,126 @@
+clear all 
+close all
+
+%Use dataSet.m to generate a new Predictor Train matrix. 
+%Do not include row 0
+for row = 2:height(predictor_train)
+    for col = 1:width(predictor_train)
+        predictor_train_diff(row, col) = (predictor_train(row, col) - predictor_train(row-1, col))/predictor_train(row-1, col);
+    end
+end
+
+% predictor_train_diff = predictor_train_diff(height(predictor_train_diff), :);
+% predictor_train_new = predictor_train(height(predictor_train), :) + predictor_train_diff;
+predictor_train_new = predictor_train_diff + predictor_train;
+
+%Use dataSet_2.m to generate a new Predictor Test matrix. 
+%Do not include row 0
+for row = 2:height(predictor_test)
+    for col = 1:width(predictor_test)
+        predictor_test_diff(row, col) = (predictor_test(row, col) - predictor_test(row-1, col))/predictor_test(row-1, col);
+    end
+end
+
+% predictor_test_diff = predictor_test_diff(height(predictor_test_diff), :);
+% predictor_test_new = predictor_test(height(predictor_test), :) + predictor_test_diff;
+predictor_test_new = predictor_test_diff + predictor_test;
+
+%Perform same steps as in HW3 with train and response data split
+factors = glmfit(predictor_train_new, response_train, 'binomial');
+prob_train = glmval(factors, predictor_train_new, 'logit');
+prob_test = glmval(factors, predictor_test_new, 'logit');
+%use perfcurve on predictor and response sets
+[X_train, Y_train, thre_train, AUC_train]=perfcurve(response_train, prob_train, 1);
+[X_test, Y_test, thre_test, AUC_valid]=perfcurve(response_test, prob_test, 1);
+%plot training and test data in one plot
+figure(1)
+plot(X_train, Y_train, 'DisplayName', 'Train')
+hold on
+plot(X_test, Y_test, 'DisplayName', 'Test')
+legend
+hold off
+xlabel('False positive rate') 
+ylabel('True positive rate')
+title('ROC for Classification by Logistic Regression for Train and Test Data')
+%print AUC values and calculate difference
+[AUC_train]
+[AUC_valid]
+train_test_diff = abs(AUC_train - AUC_valid)
+
+%Determine how feature selection affects AUC value
+%[SelectedFeatureInd] = featureSelection(predictor_test_new, response_test);
+
+%Top (15) feature columns
+%[24, 15, 3, 269, 500, 504, 395, 8, 465, 397, 22, 46, 56, 41, 16]
+
+%Using top (5) features
+pred_train_top5 = predictor_train_new(:, [24, 15, 3, 269, 500]);
+pred_test_top5 = predictor_test_new(:, [24, 15, 3, 269, 500]);
+factors = glmfit(pred_train_top5, response_train, 'binomial');
+prob_train = glmval(factors, pred_train_top5, 'logit');
+prob_test = glmval(factors, pred_test_top5, 'logit');
+%use perfcurve on predictor and response sets
+[X_train, Y_train, thre_train, AUC_train_5]=perfcurve(response_train, prob_train, 1);
+[X_test, Y_test, thre_test, AUC_valid_5]=perfcurve(response_test, prob_test, 1);
+%plot training and test data in one plot
+figure(2)
+plot(X_train, Y_train, 'DisplayName', 'Train')
+hold on
+plot(X_test, Y_test, 'DisplayName', 'Test')
+legend
+hold off
+xlabel('False positive rate') 
+ylabel('True positive rate')
+title('ROC for Classification by Logistic Regression - Top 5 Features')
+%print AUC values and calculate difference
+[AUC_train_5]
+[AUC_valid_5]
+train_test_diff_5 = abs(AUC_train_5 - AUC_valid_5)
+
+%Using top (10) features
+pred_train_top10 = predictor_train_new(:, [24, 15, 3, 269, 500, 504, 395, 8, 465, 397]);
+pred_test_top10 = predictor_test_new(:, [24, 15, 3, 269, 500, 504, 395, 8, 465, 397]);
+factors = glmfit(pred_train_top10, response_train, 'binomial');
+prob_train = glmval(factors, pred_train_top10, 'logit');
+prob_test = glmval(factors, pred_test_top10, 'logit');
+%use perfcurve on predictor and response sets
+[X_train, Y_train, thre_train, AUC_train_10]=perfcurve(response_train, prob_train, 1);
+[X_test, Y_test, thre_test, AUC_valid_10]=perfcurve(response_test, prob_test, 1);
+%plot training and test data in one plot
+figure(3)
+plot(X_train, Y_train, 'DisplayName', 'Train')
+hold on
+plot(X_test, Y_test, 'DisplayName', 'Test')
+legend
+hold off
+xlabel('False positive rate') 
+ylabel('True positive rate')
+title('ROC for Classification by Logistic Regression - Top 10 Features')
+%print AUC values and calculate difference
+[AUC_train_10]
+[AUC_valid_10]
+train_test_diff_10 = abs(AUC_train_10 - AUC_valid_10)
+
+%Using top (15) features
+pred_train_top15 = predictor_train_new(:, [24, 15, 3, 269, 500, 504, 395, 8, 465, 397, 22, 46, 56, 41, 16]);
+pred_test_top15 = predictor_test_new(:, [24, 15, 3, 269, 500, 504, 395, 8, 465, 397, 22, 46, 56, 41, 16]);
+factors = glmfit(pred_train_top15, response_train, 'binomial');
+prob_train = glmval(factors, pred_train_top15, 'logit');
+prob_test = glmval(factors, pred_test_top15, 'logit');
+%use perfcurve on predictor and response sets
+[X_train, Y_train, thre_train, AUC_train_15]=perfcurve(response_train, prob_train, 1);
+[X_test, Y_test, thre_test, AUC_valid_15]=perfcurve(response_test, prob_test, 1);
+%plot training and test data in one plot
+figure(4)
+plot(X_train, Y_train, 'DisplayName', 'Train')
+hold on
+plot(X_test, Y_test, 'DisplayName', 'Test')
+legend
+hold off
+xlabel('False positive rate') 
+ylabel('True positive rate')
+title('ROC for Classification by Logistic Regression - Top 15 Features')
+%print AUC values and calculate difference
+[AUC_train_15]
+[AUC_valid_15]
+train_test_diff_15 = abs(AUC_train_15 - AUC_valid_15)
